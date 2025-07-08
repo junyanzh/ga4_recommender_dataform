@@ -1,0 +1,12 @@
+config { type: "table" }
+
+SELECT
+  user_id,
+  item_id,
+  (SELECT p.prob
+     FROM UNNEST(predicted_label_probs) AS p
+     WHERE p.label = 1) AS prob
+FROM ML.PREDICT(
+  MODEL ${ref("train_user_item_logreg_model")},
+  (SELECT * FROM ${ref("training_dataset")} WHERE data_split = 'TEST')
+)

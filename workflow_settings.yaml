@@ -1,0 +1,17 @@
+# ── workflow_settings.yaml ──
+# Dataform Core 3.x 主要設定檔
+
+dataformCoreVersion: "3.0.0"      # 指定 Dataform Core 版本
+
+# BigQuery 目標專案與預設資料集（schema）
+defaultProject: willy-poc          # GCP 專案 ID
+defaultDataset: ga4_recommender    # BigQuery dataset（schema）
+defaultLocation: US                # BigQuery location（如非 US 請改區域）
+
+# （可選）若另有 Assertions，可加 defaultAssertionDataset
+# defaultAssertionDataset: ga4_recommender_assertions
+
+# 自訂變數：必須全為字串型別
+vars:
+  topN: "5"    # 取 Top-N 推薦的 N 值
+  k:    "5"    # precision@k 指標中的 k 值

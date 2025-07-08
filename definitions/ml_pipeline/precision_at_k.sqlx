@@ -1,0 +1,19 @@
+config { type: "table" }
+
+WITH ground_truth AS (
+  SELECT user_id, item_id
+  FROM ${ref("training_dataset")}
+  WHERE data_split = 'TEST' AND label = 1
+),
+hits AS (
+  SELECT
+    r.user_id,
+    COUNTIF(gt.item_id IS NOT NULL) /
+      CAST(${dataform.projectConfig.vars.k} AS INT64) AS precision_at_k
+  FROM ${ref("topn_recommendations")} AS r
+  LEFT JOIN ground_truth AS gt
+    ON r.user_id = gt.user_id AND r.item_id = gt.item_id
+  GROUP BY r.user_id
+)
+SELECT AVG(precision_at_k) AS macro_precision_at_k
+FROM hits

@@ -1,0 +1,13 @@
+config { type: "operations", hasOutput: true }
+
+CREATE OR REPLACE MODEL ${self()}
+OPTIONS(
+  model_type         = 'LOGISTIC_REG',
+  input_label_cols   = ['label'],
+  auto_class_weights = TRUE,
+  max_iterations     = 30
+)
+AS
+SELECT *
+FROM ${ref("training_dataset")}
+WHERE data_split = 'TRAIN'

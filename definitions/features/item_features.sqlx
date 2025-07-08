@@ -1,0 +1,22 @@
+config { type: "table" }
+
+SELECT
+  item_id,
+  ANY_VALUE(item_category)   AS item_category,
+  ANY_VALUE(price)           AS price,
+  SUM(view_item_cnt)         AS popularity_views,
+  SUM(purchase_cnt)          AS popularity_purchases
+FROM (
+  SELECT
+    item.item_name      AS item_id,
+    item.item_category  AS item_category,
+    SAFE_CAST(item.price AS NUMERIC) AS price,
+    IF(event_name = 'view_item', 1, 0) AS view_item_cnt,
+    IF(event_name = 'purchase', 1, 0)  AS purchase_cnt
+  FROM `bigquery-public-data.ga4_obfuscated_sample_ecommerce.events_*`
+  LEFT JOIN UNNEST(items) AS item
+  WHERE _TABLE_SUFFIX BETWEEN '20201101' AND '20201231'
+    AND item.item_name IS NOT NULL
+    AND item.item_name != '(not set)'
+)
+GROUP BY item_id

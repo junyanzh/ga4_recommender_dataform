@@ -1,0 +1,16 @@
+config { type: "table" }
+
+WITH ranked AS (
+  SELECT
+    user_id,
+    item_id,
+    prob,
+    ROW_NUMBER() OVER (PARTITION BY user_id ORDER BY prob DESC) AS rk
+  FROM ${ref("predicted_scores")}
+)
+SELECT
+  user_id,
+  item_id,
+  prob
+FROM ranked
+WHERE rk <= CAST(${dataform.projectConfig.vars.topN} AS INT64)

@@ -1,0 +1,43 @@
+config { type: "table" }
+
+WITH base AS (
+  SELECT
+    r.user_id,
+    r.item_id,
+    CASE
+      WHEN r.view_item_cnt >= 3 OR r.add_to_cart_cnt > 0 OR r.purchase_cnt > 0
+      THEN 1 ELSE 0
+    END AS label,
+    r.view_item_cnt,
+    r.add_to_cart_cnt,
+    r.purchase_cnt
+  FROM ${ref("user_item_interactions_raw")} AS r
+),
+avg_price AS (
+  SELECT AVG(price) AS global_avg_price
+  FROM ${ref("item_features")}
+),
+joined AS (
+  SELECT
+    b.*,
+    u.sessions,
+    u.product_views,
+    u.add_to_cart_cnt    AS user_add_to_cart_cnt,
+    u.purchase_cnt       AS user_purchase_cnt,
+    u.active_days,
+    COALESCE(i.item_category, '(not set)') AS item_category,
+    IFNULL(i.price, (SELECT global_avg_price FROM avg_price)) AS price,
+    COALESCE(i.popularity_views, 0)        AS popularity_views,
+    COALESCE(i.popularity_purchases, 0)    AS popularity_purchases
+  FROM base AS b
+  LEFT JOIN ${ref("user_features")}  AS u ON b.user_id = u.user_id
+  LEFT JOIN ${ref("item_features")}  AS i ON b.item_id = i.item_id
+)
+SELECT
+  *,
+  CASE
+    WHEN ABS(MOD(FARM_FINGERPRINT(CONCAT(user_id, ":", item_id)), 10)) <= 6 THEN 'TRAIN'
+    WHEN ABS(MOD(FARM_FINGERPRINT(CONCAT(user_id, ":", item_id)), 10)) IN (7, 8) THEN 'EVAL'
+    ELSE 'TEST'
+  END AS data_split
+FROM joined
