@@ -12,20 +12,21 @@ Everything is pure SQL (SQLX); no external Spark or Airflow needed.
 
 ## Repository Layout
 .
-├── workflow_settings.yaml # Dataform project config (Core v3)
-└── definitions/ # All SQLX actions
-├── staging/
-│ └── user_item_interactions_raw.sqlx
-├── features/
-│ ├── user_features.sqlx
-│ └── item_features.sqlx
-└── ml_pipeline/
-├── training_dataset.sqlx
-├── train_user_item_logreg_model.sqlx
-├── model_evaluation.sqlx
-├── predicted_scores.sqlx
-├── topn_recommendations.sqlx
-└── precision_at_k.sqlx
+├── workflow_settings.yaml      # Dataform project config (Core v3)
+└── definitions/                # All SQLX actions
+    ├── staging/
+    │   └── user_item_interactions_raw.sqlx
+    ├── features/
+    │   ├── user_features.sqlx
+    │   └── item_features.sqlx
+    └── ml_pipeline/
+        ├── training_dataset.sqlx
+        ├── train_user_item_logreg_model.sqlx
+        ├── model_evaluation.sqlx
+        ├── predicted_scores.sqlx
+        ├── topn_recommendations.sqlx
+        └── precision_at_k.sqlx
+
 
 ---
 
